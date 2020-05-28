@@ -59,6 +59,7 @@ from tendenci.apps.memberships.models import (
 from tendenci.apps.memberships.forms import (
     MembershipExportForm, AppCorpPreForm, MembershipDefaultForm,
     ReportForm, MembershipDefaultUploadForm, UserForm, ProfileForm,
+    BoatForm,
     EducationForm,
     DemographicsForm,
     MembershipDefault2Form,
@@ -142,6 +143,8 @@ def membership_details(request, id=0, template_name="memberships/details.html"):
 
     profile_form = ProfileForm(app_fields, instance=membership.user.profile)
 
+    boat_form = BoatForm(app_fields, request.POST or None, user=membership.user)
+
     education_form = EducationForm(app_fields, request.POST or None, user=membership.user)
 
     EventLog.objects.log(instance=membership)
@@ -150,6 +153,7 @@ def membership_details(request, id=0, template_name="memberships/details.html"):
         request=request, template_name=template_name, context={
             'membership': membership,
             'profile_form': profile_form,
+            'boat_form': boat_form,
             'education_form': education_form,
             'member_can_edit_records' : member_can_edit_records,
             'has_approve_perm': has_approve_perm
@@ -774,10 +778,7 @@ def get_taken_fields(request):
     Returns a list of json fields no longer available.
     Data type returned is JSON.
     """
-    try:
-        app_pk = int(request.POST.get('app_pk')) or 0
-    except ValueError:
-        app_pk = 0
+    app_pk = request.POST.get('app_pk') or 0
     taken_list = MembershipAppField.objects.filter(
         Q(field_name__startswith='ud'), (Q(display=True) | Q(admin_only=True))).exclude(
             membership_app=app_pk).values_list(
@@ -800,6 +801,7 @@ def membership_default_preview(
 
     user_form = UserForm(app_fields, request=request)
     profile_form = ProfileForm(app_fields)
+    boat_form = BoatForm(app_fields)
     education_form = EducationForm(app_fields)
     demographics_form = DemographicsForm(app_fields)
     membership_form = MembershipDefault2Form(app_fields,
@@ -811,6 +813,7 @@ def membership_default_preview(
                "app_fields": app_fields,
                'user_form': user_form,
                'profile_form': profile_form,
+               'boat_form': boat_form,
                'education_form': education_form,
                'demographics_form': demographics_form,
                'membership_form': membership_form}
@@ -853,12 +856,10 @@ def membership_default_add(request, slug='', membership_id=None,
 
     if membership_id:
         # it's renewal - make sure they are logged in
+        membership = get_object_or_404(MembershipDefault, id=membership_id)
         if not request.user.is_authenticated:
             return HttpResponseRedirect('%s?next=%s' % (reverse('auth_login'),
                                 request.get_full_path()))
-        membership = get_object_or_404(MembershipDefault, id=membership_id)
-        if not (request.user.is_superuser or request.user == membership.user):
-            raise Http403
         is_renewal = True
 
     membership_type_id = request.GET.get('membership_type_id', u'')
@@ -1039,19 +1040,15 @@ def membership_default_add(request, slug='', membership_id=None,
 
     if join_under_corporate and not is_renewal:
         corp_profile = corp_membership.corp_profile
-        if get_setting('module', 'corporate_memberships', 'defaultcorpinfotoindividual'):
-            profile_initial = {
-                'company': corp_profile.name,
-                'address': corp_profile.address,
-                'address2': corp_profile.address2,
-                'city': corp_profile.city,
-                'state': corp_profile.state,
-                'zipcode': corp_profile.zip,
-                'country': corp_profile.country,
-                'work_phone': corp_profile.phone,}
-        else:
-            profile_initial = {
-                'company': corp_profile.name,}
+        profile_initial = {
+            'company': corp_profile.name,
+            'address': corp_profile.address,
+            'address2': corp_profile.address2,
+            'city': corp_profile.city,
+            'state': corp_profile.state,
+            'zipcode': corp_profile.zip,
+            'country': corp_profile.country,
+            'work_phone': corp_profile.phone,}
     else:
         profile_initial = None
 
@@ -1076,6 +1073,8 @@ def membership_default_add(request, slug='', membership_id=None,
 
     if join_under_corporate:
         params['authentication_method'] = authentication_method
+
+    boat_form = BoatForm(app_fields, request.POST or None, user=user)
 
     education_form = EducationForm(app_fields, request.POST or None, user=user)
 
@@ -1144,6 +1143,7 @@ def membership_default_add(request, slug='', membership_id=None,
             forms_validate = (
                 user_form.is_valid(),
                 profile_form.is_valid(),
+                boat_form.is_valid(),
                 education_form.is_valid(),
                 demographics_form.is_valid(),
                 membership_form2.is_valid(),
@@ -1164,6 +1164,8 @@ def membership_default_add(request, slug='', membership_id=None,
 
                 profile_form.instance = customer.profile
                 profile_form.save(request_user=customer)
+
+                boat_form.save(user=customer)
 
                 education_form.save(user=customer)
 
@@ -1349,6 +1351,7 @@ def membership_default_add(request, slug='', membership_id=None,
         'app_fields': app_fields,
         'user_form': user_form,
         'profile_form': profile_form,
+        'boat_form': boat_form,
         'education_form': education_form,
         'demographics_form': demographics_form,
         'membership_form': membership_form,
@@ -1370,7 +1373,7 @@ def membership_default_edit(request, id, template='memberships/applications/add.
 
     membership = get_object_or_404(MembershipDefault, pk=id)
     is_owner = request.user == membership.user
-    user = membership.user
+    user = request.user
 
     if not has_perm(request.user, 'memberships.change_membershipdefault', membership) and not is_owner:
         raise Http403
@@ -1409,8 +1412,9 @@ def membership_default_edit(request, id, template='memberships/applications/add.
         'request_user': request.user,
         'customer': user or request.user,
         'membership_app': app,
-        'edit_mode': True,
     }
+
+    boat_form = BoatForm(app_fields, request.POST or None, user=user or request.user)
 
     education_form = EducationForm(app_fields, request.POST or None, user=user or request.user)
 
@@ -1438,6 +1442,7 @@ def membership_default_edit(request, id, template='memberships/applications/add.
         forms_validate = (
             user_form.is_valid(),
             profile_form.is_valid(),
+            boat_form.is_valid(),
             education_form.is_valid(),
             demographics_form.is_valid(),
             membership_form2.is_valid()
@@ -1456,6 +1461,8 @@ def membership_default_edit(request, id, template='memberships/applications/add.
 
             profile_form.instance = customer.profile
             profile_form.save(request_user=customer)
+
+            boat_form.save(user=customer)
 
             education_form.save(user=customer)
 
@@ -1486,6 +1493,7 @@ def membership_default_edit(request, id, template='memberships/applications/add.
         'app_fields': app_fields,
         'user_form': user_form,
         'profile_form': profile_form,
+        'boat_form': boat_form,
         'education_form': education_form,
         'demographics_form': demographics_form,
         'membership_form': membership_form2,

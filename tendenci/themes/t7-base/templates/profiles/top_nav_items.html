@@ -116,6 +116,18 @@
                                     </span>
                                 </li>
 
+                                <li class="content-item">
+                                    <span class="app-name">
+                                        <a href="{% url 'profile.edit_boats' user_this.username %}">{% trans "Edit Boats" %}</a>
+                                    </span>
+                                </li>
+
+                                <li class="content-item">
+                                    <span class="app-name">
+                                        <a href="{% url 'profile.edit_family' user_this.username %}">{% trans "Edit Family" %}</a>
+                                    </span>
+                                </li>
+
                                 {% if MODULE_EDUCATIONS_ENABLED %}
                                 <li class="content-item">
                                     <span class="app-name">

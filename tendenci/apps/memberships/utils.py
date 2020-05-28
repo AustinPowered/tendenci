@@ -42,6 +42,7 @@ from tendenci.apps.profiles.models import Profile
 from tendenci.apps.profiles.utils import make_username_unique, spawn_username
 from tendenci.apps.emails.models import Email
 from tendenci.apps.educations.models import Education
+from tendenci.apps.boats.models import Boat
 
 
 def get_default_membership_fields(use_for_corp=False):
@@ -459,8 +460,7 @@ def process_export(
 
         fks = set(user_fks + profile_fks + demographic_fks + membership_fks)
 
-    membership_ids_dict = dict(MembershipType.objects.all().values_list('id', 'name').union(
-                               MembershipType.objects.all_inactive().values_list('id', 'name')))
+    membership_ids_dict = dict(MembershipType.objects.all().values_list('id', 'name'))
     app_ids_dict = dict(MembershipApp.objects.all().values_list('id', 'name'))
 
     identifier = identifier or int(ttime.time())
@@ -501,7 +501,7 @@ def process_export(
                         item = item.strftime('%Y-%m-%d')
                     elif isinstance(item, time):
                         item = item.strftime('%H:%M:%S')
-                    elif field_name == 'membership_type' and item in membership_ids_dict:
+                    elif field_name == 'membership_type':
                         # display membership type name instead of id
                         item = membership_ids_dict[item]
                     elif field_name == 'app':
@@ -1095,6 +1095,7 @@ class ImportMembDefault(object):
                                   'school4', 'major4', 'degree4', 'graduation_year4',]
         self.should_handle_demographic = False
         self.should_handle_education = False
+        self.should_handle_boat = False
         self.membership_fields = dict([(field.name, field)
                             for field in MembershipDefault._meta.fields
                             if field.get_internal_type() != 'AutoField' and
@@ -1304,6 +1305,16 @@ class ImportMembDefault(object):
         Check if import has demographic fields.
         """
         for field_name in self.membershipdemographic_fields:
+            if field_name in field_names:
+                return True
+
+        return False
+
+    def has_boat_fields(self, field_names):
+        """
+        Check if import has boateducation fields.
+        """
+        for field_name in self.boat_fields:
             if field_name in field_names:
                 return True
 
@@ -1541,6 +1552,8 @@ class ImportMembDefault(object):
                                         self.memb_data)
             self.should_handle_education = self.has_education_fields(
                                         self.memb_data)
+            self.should_handle_boat = self.has_boat_fields(
+                                        self.memb_data)
 
         if self.should_handle_demographic:
             # process only if we have demographic fields in the import.
@@ -1550,6 +1563,32 @@ class ImportMembDefault(object):
                                                 action_info['user_action'])
             demographic.save()
 
+        if self.should_handle_boat:
+            educations = user.boats.all().order_by('pk')[0:5]
+            for x in range(1, 6):
+                name = memb_data.get('name%s' % x, '')
+                sailnumber = memb_data.get('sailnumber%s' % x, '')
+                boatclass = memb_data.get('boatclass%s' % x, '')
+                rating = memb_data.get('rating%s' % x, 0)
+                phrfregion = memb_data.get('phrfregion%s' % x, 0)
+                hullcolor = memb_data.get('hullcolor%s' % x, 0)
+                make = memb_data.get('make%s' % x, 0)
+                model = memb_data.get('model%s' % x, 0)
+                if any([name, sailnumber, boatclass, rating, phrfregion, hullcolor, make, model]):
+                    try:
+                        boat = boats[x-1]
+                    except IndexError:
+                        boat = Boat(user=user)
+                    boat.name = name
+                    boat.sailnumber = sailnumber
+                    boat.boatclass = boatclass
+                    boat.rating = rating
+                    boat.phrfregion = phrfregion
+                    boat.hullcolor = hullcolor
+                    boat.make = make
+                    boat.model = model
+
+                    education.save()
         if self.should_handle_education:
             educations = user.educations.all().order_by('pk')[0:4]
             for x in range(1, 5):

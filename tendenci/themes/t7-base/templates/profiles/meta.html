@@ -42,6 +42,12 @@
         <div class="options-list">
             <ul>
                 <li>
+                    <a href="{% url "profile.edit_boats" profile.user.username %}" class="boats" title=="Edit Boats">{% trans "Edit Boats" %}</a>
+                </li>
+                <li>
+                    <a href="{% url "profile.edit_family" profile.user.username %}" class="boats" title=="Edit Family">{% trans "Edit Family" %}</a>
+                </li>
+                <li>
                     <a href="{% url "profile.edit_groups" profile.user.username %}" class="usergroups" title=="Edit Groups">{% trans "Edit Groups" %}</a>
                 </li>
                 {% if MODULE_EDUCATIONS_ENABLED %}

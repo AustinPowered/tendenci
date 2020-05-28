@@ -978,5 +978,69 @@
     "display": "false",
     "required": "false",
     "admin_only": "true"
+    },
+    
+    {
+    "label": "Section 10. Boats",
+    "field_name": "",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "Name",
+    "field_name": "name1",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "Sail Number",
+    "field_name": "sailnumber1",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "Class",
+    "field_name": "boatclass1",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "PHRF rating",
+    "field_name": "rating1",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "PHRF region",
+    "field_name": "phrfregion1",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "Hull color",
+    "field_name": "hullcolor",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "Make",
+    "field_name": "make1",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
+    },
+    {
+    "label": "Model",
+    "field_name": "model1",
+    "display": "true",
+    "required": "false",
+    "admin_only": "false"
     }
 ]

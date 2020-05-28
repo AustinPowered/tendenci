@@ -263,6 +263,28 @@ class MembershipDefaultAdmin(admin.ModelAdmin):
         )}
     )
 
+    boat = (
+        _('Boats'),
+        { 'fields': (
+            ('name1', 'sailnumber1'), ('boatclass1', 'rating1'), ('phrfregion1', 'hullcolor1'), ('make1', 'model1',),
+            ('name2', 'sailnumber2'), ('boatclass2', 'rating2'), ('phrfregion2', 'hullcolor2'), ('make2', 'model2',),
+            ('name3', 'sailnumber3'), ('boatclass3', 'rating3'), ('phrfregion3', 'hullcolor3'), ('make3', 'model3',),
+            ('name4', 'sailnumber4'), ('boatclass4', 'rating4'), ('phrfregion4', 'hullcolor4'), ('make4', 'model4',),
+            ('name5', 'sailnumber5'), ('boatclass5', 'rating5'), ('phrfregion5', 'hullcolor5'), ('make5', 'model5',),
+        )}
+    )
+
+    family = (
+        _('Family'),
+        { 'fields': (
+            ('firstname1', 'lastname1'), ('dateofbirth1', 'email1',),
+            ('firstname2', 'lastname2'), ('dateofbirth2', 'email2',),
+            ('firstname3', 'lastname3'), ('dateofbirth3', 'email3',),
+            ('firstname4', 'lastname4'), ('dateofbirth4', 'email4',),
+            ('firstname5', 'lastname5'), ('dateofbirth5', 'email5',),
+        )}
+    )
+
     education = (
         _('Education History'),
         {'fields': (
@@ -301,9 +323,11 @@ class MembershipDefaultAdmin(admin.ModelAdmin):
     fieldsets = (
         profile,
         membership,
+        boat,
+        family,
         education,
         money,
-        status
+        status,
     )
 
     search_fields = [
@@ -359,6 +383,8 @@ class MembershipDefaultAdmin(admin.ModelAdmin):
         fieldsets = (
                 self.profile,
                 self.membership,
+                self.boat,
+                self.family,
                 self.education,)
         if demographics_fields:
             fieldsets += (
@@ -618,7 +644,7 @@ clone_apps.short_description = 'Clone selected forms'
 class MembershipAppAdmin(admin.ModelAdmin):
     inlines = (MembershipAppFieldAdmin, )
     prepopulated_fields = {'slug': ['name']}
-    list_display = ('id', 'name', 'application_form_link', 'status_detail', 'field_sort_link')
+    list_display = ('id', 'name', 'application_form_link', 'status_detail')
     list_display_links = ('name',)
     search_fields = ('name', 'status_detail')
     fieldsets = (
@@ -656,15 +682,6 @@ class MembershipAppAdmin(admin.ModelAdmin):
         css = {'all': [static('css/admin/dynamic-inlines-with-sort.css'),
                        static('css/memberships-admin.css')], }
 
-    @mark_safe
-    def field_sort_link(self, instance):
-        return '<a href="%s?membership_app_id=%d">%s</a>' % (
-                reverse('admin:memberships_membershipappfield_changelist'),
-                        instance.id,
-                        _('Sort Fields'))
-    field_sort_link.short_description = ''
-
-
 
 class MembershipTypeAdmin(TendenciBaseModelAdmin):
     list_display = ['name', 'price', 'admin_fee', 'show_group', 'require_approval',
@@ -677,7 +694,7 @@ class MembershipTypeAdmin(TendenciBaseModelAdmin):
     fieldsets = (
         (None, {'fields': ('name', 'price', 'admin_fee', 'description')}),
         (_('Expiration Method'), {'fields': ('never_expires', 'type_exp_method',)}),
-        (_('Renewal Options for this membership type'), {'fields': (('allow_renewal', 'renewal', 'renewal_require_approval'),
+        (_('Renewal Options'), {'fields': (('allow_renewal', 'renewal', 'renewal_require_approval'),
                                         'renewal_price',
                                         'renewal_period_start',
                                         'renewal_period_end',)}),

@@ -16,6 +16,10 @@ from tendenci.libs.tinymce.widgets import TinyMCE
 
 from tendenci.apps.base.fields import EmailVerificationField, PriceField, CountrySelectField
 from tendenci.apps.base.forms import FormControlWidgetMixin
+from tendenci.apps.boats.models import Boat
+from tendenci.apps.boatclasses.models import Boatclass
+from tendenci.apps.phrfregions.models import Phrfregion
+from tendenci.apps.families.models import Family
 from tendenci.apps.careers.models import Career
 from tendenci.apps.corporate_memberships.models import (CorpMembership, CorpMembershipAuthDomain,)
 from tendenci.apps.educations.models import Education
@@ -45,6 +49,9 @@ from tendenci.apps.base.utils import tcurrency
 
 
 THIS_YEAR = datetime.today().year
+
+MAX_BOAT = 5
+MAX_FAMILY = 5
 
 fs = FileSystemStorage(location=UPLOAD_ROOT)
 
@@ -209,22 +216,6 @@ class MembershipTypeForm(TendenciBaseForm):
 
         self.fields['type_exp_method'].widget = TypeExpMethodWidget(attrs={'id': 'type_exp_method'},
                                                                     fields_pos_d=fields_pos_d)
-
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        # Make sure Expiretion Grace Period <= Renewal Period End
-        expiration_grace_period = self.cleaned_data['expiration_grace_period']
-        renewal_period_end = self.cleaned_data['renewal_period_end']
-        if expiration_grace_period > renewal_period_end:
-            raise forms.ValidationError(_("The Expiration Grace Period should be less than or equal to the Renewal Period End."))
-        return cleaned_data
-
-
-    def clean_expiration_grace_period(self):
-        value = self.cleaned_data['expiration_grace_period']
-        if value > 100:
-            raise forms.ValidationError(_("This number should be less than 100 (days)."))
-        return value
 
     def clean_type_exp_method(self):
         value = self.cleaned_data['type_exp_method']
@@ -837,6 +828,322 @@ class ProfileForm(FormControlWidgetMixin, forms.ModelForm):
 
         return profile
 
+class BoatForm(FormControlWidgetMixin, forms.Form):
+
+    BOATCLASS_CHOICES = [(x.name, x.name) for x in Boatclass.objects.all().order_by('name')[:] ]        # refactor this. here and in MembershipDefaultForm
+    PHRFREGION_CHOICES = [(x.name, x.name) for x in Phrfregion.objects.all().order_by('name')[:] ]      # refactor this. here and in MembershipDefaultForm
+
+    name1 = forms.CharField(label=_('Name'), max_length=40, required=False, initial='')
+    sailnumber1 = forms.CharField(label=_('Sail Number'), max_length=20, required=False, initial='')
+    boatclass1 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating1 = forms.IntegerField(label=_('Rating'))
+    phrfregion1 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor1 = forms.CharField(label=_('Hull Color'), max_length=20, required=False, initial='')
+    make1 = forms.CharField(label=_('Make'), max_length=40, required=False, initial='')
+    model1 = forms.CharField(label=_('Model'), max_length=20, required=False, initial='')
+
+    name2 = forms.CharField(label=_('Name'), max_length=40, required=False, initial='')
+    sailnumber2 = forms.CharField(label=_('Sail Number'), max_length=20, required=False, initial='')
+    boatclass2 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating2 = forms.IntegerField(label=_('Rating'))
+    phrfregion2 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor2 = forms.CharField(label=_('Hull Color'), max_length=20, required=False, initial='')
+    make2 = forms.CharField(label=_('Make'), max_length=40, required=False, initial='')
+    model2 = forms.CharField(label=_('Model'), max_length=20, required=False, initial='')
+
+    name3 = forms.CharField(label=_('Name'), max_length=40, required=False, initial='')
+    sailnumber3 = forms.CharField(label=_('Sail Number'), max_length=20, required=False, initial='')
+    boatclass3 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating3 = forms.IntegerField(label=_('Rating'))
+    phrfregion3 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor3 = forms.CharField(label=_('Hull Color'), max_length=20, required=False, initial='')
+    make3 = forms.CharField(label=_('Make'), max_length=40, required=False, initial='')
+    model3 = forms.CharField(label=_('Model'), max_length=20, required=False, initial='')
+
+    name4 = forms.CharField(label=_('Name'), max_length=40, required=False, initial='')
+    sailnumber4 = forms.CharField(label=_('Sail Number'), max_length=20, required=False, initial='')
+    boatclass4 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating4 = forms.IntegerField(label=_('Rating'))
+    phrfregion4 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor4 = forms.CharField(label=_('Hull Color'), max_length=20, required=False, initial='')
+    make4 = forms.CharField(label=_('Make'), max_length=40, required=False, initial='')
+    model4 = forms.CharField(label=_('Model'), max_length=20, required=False, initial='')
+
+    name5 = forms.CharField(label=_('Name'), max_length=40, required=False, initial='')
+    sailnumber5 = forms.CharField(label=_('Sail Number'), max_length=20, required=False, initial='')
+    boatclass5 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating5 = forms.IntegerField(label=_('Rating'))
+    phrfregion5 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor5 = forms.CharField(label=_('Hull Color'), max_length=20, required=False, initial='')
+    make5 = forms.CharField(label=_('Make'), max_length=40, required=False, initial='')
+    model5 = forms.CharField(label=_('Model'), max_length=20, required=False, initial='')
+
+    def __init__(self, app_field_objs, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(BoatForm, self).__init__(*args, **kwargs)
+        self.blank_form = False
+#
+#        import pdb
+#        pdb.set_trace()
+#
+        if user:
+            self.user = user
+        else:
+            self.user = None
+
+        if app_field_objs:
+            assign_fields(self, app_field_objs)
+        self.field_names = [name for name in self.fields]
+        
+        # If none Boat fields are presented on the form, clear fields from the
+        # BoatForm to prevent the existing boat data from being wipped out.
+        if app_field_objs and app_field_objs.filter(field_name__in=[
+            'name1', 'sailnumber1', 'boatclass1', 'rating1', 'phrfregion1', 'hullcolor1', 'make1', 'model1',
+            'name2', 'sailnumber2', 'boatclass2', 'rating2', 'phrfregion2', 'hullcolor2', 'make2', 'model2',
+            'name3', 'sailnumber3', 'boatclass3', 'rating3', 'phrfregion3', 'hullcolor3', 'make3', 'model3',
+            'name4', 'sailnumber4', 'boatclass4', 'rating4', 'phrfregion4', 'hullcolor4', 'make4', 'model4',
+            'name5', 'sailnumber5', 'boatclass5', 'rating5', 'phrfregion5', 'hullcolor5', 'make5', 'model5', ]).count() == 0:
+            self.fields.clear()
+            self.blank_form = True
+            return
+
+        if self.user:
+            boat_list = self.user.boats.all().order_by('pk')[0:MAX_BOAT]
+            if boat_list.exists():
+                cnt = 1
+                for boat in boat_list:
+                    field_key = 'name%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.name
+                    field_key = 'sailnumber%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.sailnumber
+                    field_key = 'boatclass%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.boatclass
+                    field_key = 'rating%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.rating
+                    field_key = 'phrfregion%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.phrfregion
+                    field_key = 'hullcolor%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.hullcolor
+                    field_key = 'make%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.make
+                    field_key = 'model%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = boat.model
+                    cnt += 1
+                while cnt < (MAX_BOAT + 1):
+                    field_key = 'boatclass%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = 'Unassigned'
+                    field_key = 'rating%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = 0
+                    field_key = 'phrfregion%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = 'Unassigned'
+                    cnt += 1
+            else:
+                cnt = 1
+                while cnt < (MAX_BOAT + 1):
+                    field_key = 'boatclass%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = 'Unassigned'
+                    field_key = 'rating%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = 0
+                    field_key = 'phrfregion%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = 'Unassigned'
+                    cnt += 1
+
+                    
+        self.add_form_control_class()
+
+    def save(self, user):
+        if self.blank_form:
+            # do nothing
+            return
+
+        data = self.cleaned_data
+
+        if not self.user: # meaning add
+            boat_list = user.boats.all().order_by('pk')[0:MAX_BOAT]
+        else: # meaning edit
+            boat_list = self.user.boats.all().order_by('pk')[0:MAX_BOAT]
+
+        cnt = 0
+        if boat_list:
+            for i, boat in enumerate(boat_list):
+                cnt = i + 1
+                name = data.get('name%s' % cnt, '')
+                sailnumber = data.get('sailnumber%s' % cnt, '')
+                boatclass = data.get('boatclass%s' % cnt, '')
+                rating = data.get('rating%s' % cnt, '')
+                phrfregion = data.get('phrfregion%s' % cnt, '')
+                hullcolor = data.get('hullcolor%s' % cnt, '')
+                make = data.get('make%s' % cnt, '')
+                model = data.get('model%s' % cnt, '')
+
+                boat.name=name
+                boat.sailnumber=sailnumber
+                boat.boatclass=Boatclass.objects.get(name=boatclass)
+                boat.rating=rating
+                boat.phrfregion=Phrfregion.objects.get(name=phrfregion)
+                boat.hullcolor=hullcolor
+                boat.make=make
+                boat.model=model
+                boat.save()
+
+        if cnt < MAX_BOAT:
+            for i in range(cnt+1, MAX_BOAT+1):
+                name = data.get('name%s' % i, '')
+                sailnumber = data.get('sailnumber%s' % i, '')
+                boatclass = data.get('boatclass%s' % i, '')
+                rating = data.get('rating%s' % i, 0)
+                phrfregion = data.get('phrfregion%s' % i, 0)
+                hullcolor = data.get('hullcolor%s' % i, 0)
+                make = data.get('make%s' % i, 0)
+                model = data.get('model%s' % i, 0)
+                if any([name, sailnumber, hullcolor, make, model]):
+                    Boat.objects.create(
+                        user=user,
+                        name=name,
+                        sailnumber=sailnumber,
+                        boatclass=Boatclass.objects.get(name=boatclass),
+                        rating=rating,
+                        phrfregion=Phrfregion.objects.get(name=phrfregion),
+                        hullcolor=hullcolor,
+                        make=make,
+                        model=model
+                    )
+
+class FamilyForm(FormControlWidgetMixin, forms.Form):
+
+    firstname1 = forms.CharField(label=_('First Name'), max_length=30, required=False, initial='')
+    lastname1 = forms.CharField(label=_('Last Name'), max_length=30, required=False, initial='')
+    dateofbirth1 = forms.DateField(label=_('Date of Birth'), required=False)
+    email1 = forms.EmailField(label=_('Email'), required=False)
+
+    firstname2 = forms.CharField(label=_('First Name'), max_length=30, required=False, initial='')
+    lastname2 = forms.CharField(label=_('Last Name'), max_length=30, required=False, initial='')
+    dateofbirth2 = forms.DateField(label=_('Date of Birth'), required=False)
+    email2 = forms.EmailField(label=_('Email'), required=False)
+
+    firstname3 = forms.CharField(label=_('First Name'), max_length=30, required=False, initial='')
+    lastname3 = forms.CharField(label=_('Last Name'), max_length=30, required=False, initial='')
+    dateofbirth3 = forms.DateField(label=_('Date of Birth'), required=False)
+    email3 = forms.EmailField(label=_('Email'), required=False)
+
+    firstname4 = forms.CharField(label=_('First Name'), max_length=30, required=False, initial='')
+    lastname4 = forms.CharField(label=_('Last Name'), max_length=30, required=False, initial='')
+    dateofbirth4 = forms.DateField(label=_('Date of Birth'), required=False)
+    email4 = forms.EmailField(label=_('Email'), required=False)
+
+    firstname5 = forms.CharField(label=_('First Name'), max_length=30, required=False, initial='')
+    lastname5 = forms.CharField(label=_('Last Name'), max_length=30, required=False, initial='')
+    dateofbirth5 = forms.DateField(label=_('Date of Birth'), required=False)
+    email5 = forms.EmailField(label=_('Email'), required=False)
+
+
+    def __init__(self, app_field_objs, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(FamilyForm, self).__init__(*args, **kwargs)
+        self.blank_form = False
+#
+#        import pdb
+#        pdb.set_trace()
+#
+        if user:
+            self.user = user
+        else:
+            self.user = None
+
+        if app_field_objs:
+            assign_fields(self, app_field_objs)
+        self.field_names = [name for name in self.fields]
+        
+        # If none Family fields are presented on the form, clear fields from the
+        # FamilyForm to prevent the existing family data from being wipped out.
+        if app_field_objs and app_field_objs.filter(field_name__in=[
+            'firstname1', 'lastname1', 'dateofbirth1', 'email1',
+            'firstname2', 'lastname2', 'dateofbirth2', 'email2',
+            'firstname3', 'lastname3', 'dateofbirth3', 'email3',
+            'firstname4', 'lastname4', 'dateofbirth4', 'email4',
+            'firstname5', 'lastname5', 'dateofbirth5', 'email5', ]).count() == 0:
+            self.fields.clear()
+            self.blank_form = True
+            return
+
+        if self.user:
+            family_list = self.user.families.all().order_by('pk')[0:MAX_FAMILY]
+            if family_list.exists():
+                cnt = 1
+                for member in family_list:
+                    field_key = 'firstname%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = member.first_name
+                    field_key = 'lastname%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = member.last_name
+                    field_key = 'dateofbirth%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = member.date_of_birth
+                    field_key = 'email%s' % cnt
+                    if field_key in self.fields:
+                        self.fields[field_key].initial = member.email
+                    cnt += 1
+
+        self.add_form_control_class()
+
+    def save(self, user):
+        if self.blank_form:
+            # do nothing
+            return
+
+        data = self.cleaned_data
+
+        if not self.user: # meaning add
+            family_list = user.families.all().order_by('pk')[0:MAX_FAMILY]
+        else: # meaning edit
+            family_list = self.user.families.all().order_by('pk')[0:MAX_FAMILY]
+
+        cnt = 0
+        if family_list:
+            for i, member in enumerate(family_list):
+                cnt = i + 1
+                firstname = data.get('firstname%s' % cnt, '')
+                lastname = data.get('lastname%s' % cnt, '')
+                dateofbirth = data.get('dateofbirth%s' % cnt, '') # validate date of birth.  Note there is no validator in Django? https://docs.djangoproject.com/en/2.1/ref/models/fields/#datefield
+                email = data.get('email%s' % cnt, '') # validated via EmailValidator https://docs.djangoproject.com/en/2.1/ref/models/fields/#emailfield
+
+                member.first_name=firstname
+                member.last_name=lastname
+                member.date_of_birth=dateofbirth
+                member.email=email
+                member.save()
+
+        if cnt < MAX_FAMILY:
+            for i in range(cnt+1, MAX_FAMILY+1):
+                firstname = data.get('firstname%s' % i, '')
+                lastname = data.get('lastname%s' % i, '')
+                dateofbirth = data.get('dateofbirth%s' % i, '')
+                email = data.get('email%s' % i, 0)
+                if any([firstname, lastname, dateofbirth, email]):
+                    Family.objects.create(
+                        user=user,
+                        first_name=firstname,
+                        last_name=lastname,
+                        date_of_birth=dateofbirth,
+                        email=email
+                    )
+
+
 
 YEAR_CHOICES = [(i, i) for i in range(1900, THIS_YEAR + 50)]
 YEAR_CHOICES = [(0, '?')] + YEAR_CHOICES
@@ -863,6 +1170,7 @@ class EducationForm(FormControlWidgetMixin, forms.Form):
         user = kwargs.pop('user', None)
         super(EducationForm, self).__init__(*args, **kwargs)
         self.blank_form = False
+
         if user:
             self.user = user
         else:
@@ -880,7 +1188,10 @@ class EducationForm(FormControlWidgetMixin, forms.Form):
             self.fields.clear()
             self.blank_form = True
             return
-
+#
+#        import pdb
+#        pdb.set_trace()
+#
         if self.user:
             education_list = self.user.educations.all().order_by('pk')[0:4]
             if education_list.exists():
@@ -1062,7 +1373,7 @@ class MembershipDefault2Form(FormControlWidgetMixin, forms.ModelForm):
     )
 
     discount_code = forms.CharField(label=_('Discount Code'), required=False)
-#     donation_opt = forms.MultiValueField(required=False)
+#    donation_opt = forms.MultiValueField(required=False)
     payment_method = PaymentMethodModelChoiceField(
         label=_('Payment Method'),
         widget=forms.RadioSelect(),
@@ -1086,7 +1397,6 @@ class MembershipDefault2Form(FormControlWidgetMixin, forms.ModelForm):
         multiple_membership = kwargs.pop('multiple_membership', False)
         self.is_renewal = kwargs.pop('is_renewal', False)
         self.renew_from_id = kwargs.pop('renew_from_id', None)
-        self.edit_mode = kwargs.pop('edit_mode', False)
 
         if 'join_under_corporate' in kwargs:
             self.join_under_corporate = kwargs.pop('join_under_corporate')
@@ -1183,19 +1493,15 @@ class MembershipDefault2Form(FormControlWidgetMixin, forms.ModelForm):
                 self.fields['renew_dt'].widget = forms.TextInput(attrs={'readonly': 'readonly'})
                 #self.fields['renew_dt'].widget.attrs['readonly'] = 'readonly'
 
-        if not self.edit_mode and self.membership_app.donation_enabled:
+        if self.membership_app.donation_enabled:
             self.fields['donation_option_value'] = DonationOptionAmountField(required=False)
             self.fields['donation_option_value'].label = self.membership_app.donation_label
             self.fields['donation_option_value'].widget = DonationOptionAmountWidget(attrs={},
                                                 default_amount=self.membership_app.donation_default_amount)
             require_payment = True
 
-        if self.edit_mode:
-            require_payment = False
-
         if not require_payment:
-            if 'payment_method' in self.fields:
-                del self.fields['payment_method']
+            del self.fields['payment_method']
         else:
             payment_method_qs = self.membership_app.payment_methods.all()
             if not (request_user and request_user.is_authenticated and request_user.is_superuser):
@@ -1278,9 +1584,8 @@ class MembershipDefault2Form(FormControlWidgetMixin, forms.ModelForm):
 
         # set owner & creator
         if request_user:
-            if not self.edit_mode:
-                membership.creator = request_user
-                membership.creator_username = request_user.username
+            membership.creator = request_user
+            membership.creator_username = request_user.username
             membership.owner = request_user
             membership.owner_username = request_user.username
 
@@ -1536,6 +1841,80 @@ class MembershipDefaultForm(TendenciBaseForm):
     extra_country = forms.CharField(initial=u'', required=False)
     extra_address_type = forms.CharField(initial=u'', required=False)
 
+    BOATCLASS_CHOICES = [(x.name, x.name) for x in Boatclass.objects.all().order_by('name')[:] ]        # refactor this. here and in BoatForm
+    PHRFREGION_CHOICES = [(x.name, x.name) for x in Phrfregion.objects.all().order_by('name')[:] ]      # refactor this. here and in BoatForm
+    # boat fields here
+    name1 = forms.CharField(initial=u'', required=False)
+    sailnumber1 = forms.CharField(initial=u'', required=False)
+    boatclass1 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating1 = forms.CharField(initial=u'', required=False)
+    phrfregion1 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor1 = forms.CharField(initial=u'', required=False)
+    make1 = forms.CharField(initial=u'', required=False)
+    model1 = forms.CharField(initial=u'', required=False)
+
+    name2 = forms.CharField(initial=u'', required=False)
+    sailnumber2 = forms.CharField(initial=u'', required=False)
+    boatclass2 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating2 = forms.CharField(initial=u'', required=False)
+    phrfregion2 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor2 = forms.CharField(initial=u'', required=False)
+    make2 = forms.CharField(initial=u'', required=False)
+    model2 = forms.CharField(initial=u'', required=False)
+
+    name3 = forms.CharField(initial=u'', required=False)
+    sailnumber3 = forms.CharField(initial=u'', required=False)
+    boatclass3 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating3 = forms.CharField(initial=u'', required=False)
+    phrfregion3 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor3 = forms.CharField(initial=u'', required=False)
+    make3 = forms.CharField(initial=u'', required=False)
+    model3 = forms.CharField(initial=u'', required=False)
+
+    name4 = forms.CharField(initial=u'', required=False)
+    sailnumber4 = forms.CharField(initial=u'', required=False)
+    boatclass4 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating4 = forms.CharField(initial=u'', required=False)
+    phrfregion4 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor4 = forms.CharField(initial=u'', required=False)
+    make4 = forms.CharField(initial=u'', required=False)
+    model4 = forms.CharField(initial=u'', required=False)
+
+    name5 = forms.CharField(initial=u'', required=False)
+    sailnumber5 = forms.CharField(initial=u'', required=False)
+    boatclass5 = forms.ChoiceField(label=_('Boat Class'), required=True, choices=BOATCLASS_CHOICES)
+    rating5 = forms.CharField(initial=u'', required=False)
+    phrfregion5 = forms.ChoiceField(label=_('PHRF Region'), required=True, choices=PHRFREGION_CHOICES)
+    hullcolor5 = forms.CharField(initial=u'', required=False)
+    make5 = forms.CharField(initial=u'', required=False)
+    model5 = forms.CharField(initial=u'', required=False)
+
+    #family fields here
+    firstname1 = forms.CharField(initial=u'', required=False)
+    lastname1 = forms.CharField(initial=u'', required=False)
+    dateofbirth1 = forms.DateField(required=False)
+    email1 = forms.EmailField(required=False)
+
+    firstname2 = forms.CharField(initial=u'', required=False)
+    lastname2 = forms.CharField(initial=u'', required=False)
+    dateofbirth2 = forms.DateField(required=False)
+    email2 = forms.EmailField(required=False)
+
+    firstname3 = forms.CharField(initial=u'', required=False)
+    lastname3 = forms.CharField(initial=u'', required=False)
+    dateofbirth3 = forms.DateField(required=False)
+    email3 = forms.EmailField(required=False)
+
+    firstname4 = forms.CharField(initial=u'', required=False)
+    lastname4 = forms.CharField(initial=u'', required=False)
+    dateofbirth4 = forms.DateField(required=False)
+    email4 = forms.EmailField(required=False)
+
+    firstname5 = forms.CharField(initial=u'', required=False)
+    lastname5 = forms.CharField(initial=u'', required=False)
+    dateofbirth5 = forms.DateField(required=False)
+    email5 = forms.EmailField(required=False)
+
     #education fields here
     school1 = forms.CharField(initial=u'', required=False)
     major1 = forms.CharField(initial=u'', required=False)
@@ -1768,6 +2147,32 @@ class MembershipDefaultForm(TendenciBaseForm):
                 self.fields['renew_dt'].widget.attrs['readonly'] = 'readonly'
         # -----------------------------------------------------
 
+            # initialize boat fields
+            self.boat_list = self.instance.user.boats.all().order_by('pk')[0:MAX_BOAT]
+            cnt = 1
+            if self.boat_list:
+                for boat in self.boat_list:
+                    self.fields['name%s' % cnt].initial = boat.name
+                    self.fields['sailnumber%s' % cnt].initial = boat.sailnumber
+                    self.fields['boatclass%s' % cnt].initial = boat.boatclass
+                    self.fields['rating%s' % cnt].initial = boat.rating
+                    self.fields['phrfregion%s' % cnt].initial = boat.phrfregion
+                    self.fields['hullcolor%s' % cnt].initial = boat.hullcolor
+                    self.fields['rating%s' % cnt].initial = boat.rating
+                    self.fields['model%s' % cnt].initial = boat.model
+                    cnt += 1
+
+            # initialize family fields
+            self.family_list = self.instance.user.families.all().order_by('pk')[0:MAX_FAMILY]
+            cnt = 1
+            if self.family_list:
+                for member in self.family_list:
+                    self.fields['firstname%s' % cnt].initial = member.first_name
+                    self.fields['lastname%s' % cnt].initial = member.last_name
+                    self.fields['dateofbirth%s' % cnt].initial = member.date_of_birth
+                    self.fields['email%s' % cnt].initial = member.email
+                    cnt += 1
+
             # initialize education fields
             self.education_list = self.instance.user.educations.all().order_by('pk')[0:4]
             cnt = 1
@@ -1869,6 +2274,7 @@ class MembershipDefaultForm(TendenciBaseForm):
             Membership
             Membership.user
             Membership.user.profile
+            Membership.user.boat
             Membership.user.education
             Membership.invoice
             Membership.user.group_set()
@@ -1953,6 +2359,8 @@ class MembershipDefaultForm(TendenciBaseForm):
             # save application fields
             # save join, renew, and expire dt
             membership.save()
+
+            # save boat fields                                                          # XXX
 
             # save education fields ----------------------------
         if self.education_list: # meaning education instances exists already

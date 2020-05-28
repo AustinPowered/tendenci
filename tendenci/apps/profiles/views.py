@@ -55,6 +55,11 @@ from tendenci.apps.profiles.utils import get_member_reminders, ImportUsers
 from tendenci.apps.events.models import Registrant
 from tendenci.apps.memberships.models import MembershipType
 from tendenci.apps.memberships.forms import EducationForm
+from tendenci.apps.memberships.forms import FamilyForm
+from tendenci.apps.memberships.forms import BoatForm
+
+from tendenci.apps.boatclasses.models import Boatclass          # 20200204
+
 from tendenci.apps.invoices.models import Invoice
 
 try:
@@ -481,7 +486,7 @@ def edit(request, id, form_class=ProfileForm, template_name="profiles/add_edit.h
                     user_edit.is_superuser = 1
                     user_edit.is_staff = 1
                     # remove them from auth_group if any - they don't need it
-                    user_edit.groups.set([])
+                    user_edit.groups = []
                 elif security_level == 'staff':
                     user_edit.is_superuser = 0
                     user_edit.is_staff = 1
@@ -489,7 +494,7 @@ def edit(request, id, form_class=ProfileForm, template_name="profiles/add_edit.h
                     user_edit.is_superuser = 0
                     user_edit.is_staff = 0
                     # remove them from auth_group if any
-                    user_edit.groups.set([])
+                    user_edit.groups = []
 
                 # set up user permission
                 profile.allow_user_view, profile.allow_user_edit = False, False
@@ -599,7 +604,7 @@ def edit_user_perms(request, id, form_class=UserPermissionForm, template_name="p
     else:
         form = form_class(instance=user_edit)
     if form.is_valid():
-        user_edit.user_permissions.set(form.cleaned_data['user_permissions'])
+        user_edit.user_permissions = form.cleaned_data['user_permissions']
         user_edit.save()
 
         EventLog.objects.log(instance=profile)
@@ -972,6 +977,56 @@ def user_membership_add(request, username, form_class=UserMembershipForm, templa
 
 
 @login_required
+def user_boats_edit(request, username, form_class=BoatForm, template_name="profiles/edit_boats.html"):
+    user = get_object_or_404(User, username=username)
+
+    try:
+        profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create_profile(user=user)
+
+    if not profile.allow_edit_by(request.user):
+        raise Http403
+
+    form = form_class(None, request.POST or None, user=user)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save(user)
+            messages.add_message(request, messages.SUCCESS, _('Successfully edited boats for %(full_name)s' % { 'full_name' : user.get_full_name()}))
+            return HttpResponseRedirect("%s" % (reverse('profile', args=[user.username])))
+
+    return render_to_resp(request=request, template_name=template_name, context={
+                            'form': form,
+                            'user_this': user,
+                            })
+
+@login_required
+def user_family_edit(request, username, form_class=FamilyForm, template_name="profiles/edit_family.html"):
+    user = get_object_or_404(User, username=username)
+
+    try:
+        profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create_profile(user=user)
+
+    if not profile.allow_edit_by(request.user):
+        raise Http403
+
+    form = form_class(None, request.POST or None, user=user)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save(user)
+            messages.add_message(request, messages.SUCCESS, _('Successfully edited family for %(full_name)s' % { 'full_name' : user.get_full_name()}))
+            return HttpResponseRedirect("%s" % (reverse('profile', args=[user.username])))
+
+    return render_to_resp(request=request, template_name=template_name, context={
+                            'form': form,
+                            'user_this': user,
+                            })
+
+@login_required
 def user_education_edit(request, username, form_class=EducationForm, template_name="profiles/edit_education.html"):
     user = get_object_or_404(User, username=username)
 
@@ -1115,10 +1170,6 @@ def merge_profiles(request, sid, template_name="profiles/merge_profiles.html"):
     users_ids = (request.session[sid]).get('users', [])
     profiles = []
     for user_id in users_ids:
-        if not User.objects.filter(id=user_id).exists():
-            # user to merge doesn't exist, redirect to the list page
-            del request.session[sid]
-            return redirect("profile.similar")
         profile = Profile.objects.get_or_create(user_id=user_id,
                                     defaults={
                                     'creator_id': request.user.id,

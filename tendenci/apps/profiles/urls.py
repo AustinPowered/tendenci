@@ -55,6 +55,8 @@ urlpatterns = [
     url(r'^%s/activate-email/$' % urlpath, views.activate_email, name="profile.activate_email"),
 
     url(r'^%s/(?P<username>[+-.\w\d@\s]+)/$' % urlpath, views.index, name='profile'),
+    url(r'^%s/(?P<username>[+-.\w\d@\s]+)/boats/edit/$' % urlpath, views.user_boats_edit, name='profile.edit_boats'),
+    url(r'^%s/(?P<username>[+-.\w\d@\s]+)/family/edit/$' % urlpath, views.user_family_edit, name='profile.edit_family'),
     url(r'^%s/(?P<username>[+-.\w\d@\s]+)/groups/edit/$' % urlpath, views.user_groups_edit, name='profile.edit_groups'),
     url(r'^%s/(?P<username>[+-.\w\d@\s]+)/education/edit/$' % urlpath, views.user_education_edit, name='profile.edit_education'),
     url(r'^%s/(?P<username>[+-.\w\d@\s]+)/groups/(?P<membership_id>\d+)/edit/$' % urlpath, views.user_role_edit, name='profile.edit_role'),
