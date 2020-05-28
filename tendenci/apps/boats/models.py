@@ -42,7 +42,7 @@ class Boat(TendenciBaseModel):
     objects = BoatManager()
 
     class Meta:
-        permissions = (("view_boat", _("Can view boat")),)
+    #    permissions = (("view_boat", _("Can view boat")),)
         verbose_name = _("Boat")
         verbose_name_plural = _("Boats")
 

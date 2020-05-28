@@ -30,7 +30,7 @@ class Phrfregion(TendenciBaseModel):
     objects = PhrfregionManager()
 
     class Meta:
-        permissions = (("view_phrfregion", _("Can view phrfregion")),)
+    #   permissions = (("view_phrfregion", _("Can view phrfregion")),)
         verbose_name = _("PHRF region")
         verbose_name_plural = _("PHRF regions")
 
