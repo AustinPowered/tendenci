@@ -11,7 +11,17 @@ class BoatAdmin(TendenciBaseModelAdmin):
     list_filter = []
     search_fields = ['user', 'name', 'boatclass', 'phrfregion', 'user__username', 'user__first_name', 'user__last_name', 'user__email']
     fieldsets = (
-        ('',               {'fields': ('user', 'name', 'sailnumber', 'boatclass', 'rating', 'phrfregion', 'hullcolor', 'make', 'model')}),
+        ('', {'fields': ('user',
+                         'name',
+                         'sailnumber', 
+                         'boatclass', 
+                         'rating', 
+                         'phrfregion', 
+                         'hullcolor', 
+                         'make', 
+                         'model',
+                )
+        }),
         (_('Permissions'), {'fields': ('allow_anonymous_view',)}),
         (_('Advanced Permissions'), {'classes': ('collapse',), 'fields': (
             'user_perms',
